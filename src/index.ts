@@ -24,7 +24,9 @@ export function createCheckpointSession<T>(storage: AtomicCheckpointStorage, key
   load:()=>ordered(async()=>{const record=decode(await storage.read(key));revision=record?.revision||0;return record?.value;}),
   save:(value:T)=>{
    // Snapshot before waiting for earlier writes; callers may mutate their job.
-   const snapshot=JSON.parse(JSON.stringify(value)) as T;
+   let snapshot:T;
+   try { snapshot=(globalThis as unknown as {structuredClone:<V>(value:V)=>V}).structuredClone(value); }
+   catch { return Promise.reject(new CheckpointError('CHECKPOINT_INVALID')); }
    if(!accepts(snapshot))return Promise.reject(new CheckpointError('CHECKPOINT_INVALID'));
    return ordered(async()=>{
     if(revision===undefined)throw new CheckpointError('CHECKPOINT_NOT_LOADED');
