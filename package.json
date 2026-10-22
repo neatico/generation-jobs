@@ -1,0 +1,8 @@
+{
+  "name":"@neatico/generation-jobs","version":"0.1.0","description":"Versioned, conflict-aware checkpoints for recoverable generation workflows.","type":"module",
+  "main":"./dist/cjs/index.js","types":"./dist/index.d.ts",
+  "exports":{".":{"types":"./dist/index.d.ts","import":"./dist/index.js","require":"./dist/cjs/index.js"}},
+  "files":["dist","README.md","LICENSE"],"sideEffects":false,"license":"MIT","publishConfig":{"access":"public"},
+  "scripts":{"build":"tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/cjs.mjs","test":"npm run build && node --test test/*.test.mjs","prepack":"npm test"},
+  "devDependencies":{"typescript":"^5.9.3"}
+}
