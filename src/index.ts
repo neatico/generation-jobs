@@ -43,3 +43,5 @@ export function checkpointKey(owner:string,workspace:string,kind:'presentation'|
  if(!owner||!workspace)throw new CheckpointError('CHECKPOINT_INVALID');
  return JSON.stringify(['neatico-generation-v1',owner,workspace,kind]);
 }
+export {runRecoverableOutputs} from './runOutputs.js';
+export type {OutputRunOptions} from './runOutputs.js';
