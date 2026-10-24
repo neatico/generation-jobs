@@ -1,6 +1,6 @@
 {
   "name": "@neatico/generation-jobs",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Versioned, conflict-aware checkpoints for recoverable generation workflows.",
   "type": "module",
   "main": "./dist/cjs/index.js",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "typescript": "^5.9.3"
   },
-  "homepage": "https://www.neatico.com/?utm_source=npm&utm_medium=package&utm_campaign=generation-jobs",
+  "homepage": "https://www.neatico.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/neatico/generation-jobs.git"
