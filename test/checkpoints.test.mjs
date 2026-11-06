@@ -9,3 +9,14 @@ test('failed storage write is reported and can be retried without advancing revi
 test('rejects invalid schema and save before load; isolates scopes',async()=>{const store=fixture(),a=createCheckpointSession(store,'a',accepts);await assert.rejects(a.save({input:'Keep'}),{code:'CHECKPOINT_NOT_LOADED'});await store.update('a',()=>({version:9}));await assert.rejects(a.load(),{code:'CHECKPOINT_INVALID'});assert.notEqual(checkpointKey('u','a','social'),checkpointKey('u','b','social'));assert.notEqual(checkpointKey('u','a','social'),checkpointKey('v','a','social'));});
 
 test('incomplete numeric editing remains NaN rather than becoming null after refresh',async()=>{const store=fixture(),session=createCheckpointSession(store,'draft',accepts);await session.load();await session.save({input:'Chart',value:NaN,optional:undefined});const restored=await createCheckpointSession(store,'draft',accepts).load();assert.ok(Number.isNaN(restored.value));assert.ok(Object.hasOwn(restored,'optional'));await assert.rejects(session.save({input:'Unsupported',callback:()=>{}}),{code:'CHECKPOINT_INVALID'});});
+
+test('rejects nonfinite timestamps and revision overflow without replacing stored work',async()=>{
+ for(const updatedAt of [NaN,Infinity,-Infinity,'today']) {
+  const store=fixture();await store.update('a',()=>({version:1,revision:1,updatedAt,value:{input:'Keep'}}));
+  await assert.rejects(createCheckpointSession(store,'a',accepts).load(),{code:'CHECKPOINT_INVALID'});
+ }
+ const store=fixture();await store.update('a',()=>({version:1,revision:Number.MAX_SAFE_INTEGER,updatedAt:1,value:{input:'Keep'}}));
+ const session=createCheckpointSession(store,'a',accepts);await session.load();
+ await assert.rejects(session.save({input:'Replace'}),{code:'CHECKPOINT_INVALID'});
+ assert.equal((await session.load()).input,'Keep');
+});

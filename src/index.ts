@@ -14,7 +14,7 @@ export function createCheckpointSession<T>(storage: AtomicCheckpointStorage, key
  const decode=(raw:unknown):Checkpoint<T>|undefined=>{
   if(raw===undefined)return;
   const record=raw as Partial<Checkpoint<T>>;
-  if(!record||record.version!==1||!Number.isSafeInteger(record.revision)||record.revision!<1||typeof record.updatedAt!=='number'||!accepts(record.value))throw new CheckpointError('CHECKPOINT_INVALID');
+  if(!record||record.version!==1||!Number.isSafeInteger(record.revision)||record.revision!<1||!Number.isFinite(record.updatedAt)||!accepts(record.value))throw new CheckpointError('CHECKPOINT_INVALID');
   return record as Checkpoint<T>;
  };
  const ordered=<R>(action:()=>Promise<R>):Promise<R>=>{
@@ -31,6 +31,7 @@ export function createCheckpointSession<T>(storage: AtomicCheckpointStorage, key
    return ordered(async()=>{
     if(revision===undefined)throw new CheckpointError('CHECKPOINT_NOT_LOADED');
     const expected=revision;
+    if(!Number.isSafeInteger(expected+1))throw new CheckpointError('CHECKPOINT_INVALID');
     await storage.update(key,raw=>{
      const current=decode(raw);
      if((current?.revision||0)!==expected)throw new CheckpointError('CHECKPOINT_CONFLICT');
